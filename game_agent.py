@@ -65,8 +65,9 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    my_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(my_moves - opponent_moves)
 
 
 def custom_score_3(game, player):
@@ -236,7 +237,7 @@ class MinimaxPlayer(IsolationPlayer):
     def min_value(self, game, depth):
         """
         Calculate the value of min-node
-        
+
         :param game: Board
         :param depth: current search depth
         :return: score
@@ -248,12 +249,12 @@ class MinimaxPlayer(IsolationPlayer):
         if depth == 0:
             return self.score(game, self)
 
-        v = float("inf")
+        best_score = float("inf")
         for move in game.get_legal_moves():
             score = self.max_value(game.forecast_move(move), depth - 1)
-            v = min(v, score)
+            best_score = min(best_score, score)
 
-        return v
+        return best_score
 
     def max_value(self, game, depth):
         """
@@ -270,12 +271,12 @@ class MinimaxPlayer(IsolationPlayer):
         if depth == 0:
             return self.score(game, self)
 
-        v = float("-inf")
+        best_score = float("-inf")
         for move in game.get_legal_moves():
             score = self.min_value(game.forecast_move(move), depth - 1)
-            v = max(v, score)
+            best_score = max(best_score, score)
 
-        return v
+        return best_score
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -316,8 +317,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        return self.alphabeta(game, self.search_depth)
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -367,5 +367,72 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # If no legal moves, return (-1, -1)
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return -1, -1
+
+        # print("-" * 80)
+        best_move = (-1, -1)
+        best_score = float("-inf")
+        for move in game.get_legal_moves():
+            # print("Alpha", alpha, "Beta", beta, "Best", best_score)
+            score = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            if score > best_score:
+                best_score = score
+                best_move = move
+            if best_score >= beta:
+                return move
+            alpha = max(alpha, best_score)
+
+        return best_move
+
+    def max_value(self, game, depth, alpha, beta):
+        """
+        Implementation of MAX-VALUE(state, a, b)
+
+        :param game: Board
+        :param depth: current search depth
+        :return: score, alpha
+        """
+        # Terminal-test
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            return self.score(game, self)
+
+        best_score = float("-inf")
+        for move in game.get_legal_moves():
+            score = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            best_score = max(best_score, score)
+            if best_score >= beta:
+                return best_score
+            alpha = max(best_score, alpha)
+
+        return best_score
+
+    def min_value(self, game, depth, alpha, beta):
+        """
+        Implementation of MIN-VALUE(state, a, b)
+
+        :param game: Board
+        :param depth: current search depth
+        :return: score, beta
+        """
+        # Terminal-test
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            return self.score(game, self)
+
+        best_score = float("inf")
+        for move in game.get_legal_moves():
+            score = self.max_value(game.forecast_move(move), depth - 1, alpha, beta)
+            best_score = min(best_score, score)
+            if best_score <= alpha:
+                return best_score
+            beta = min(beta, best_score)
+
+        return best_score
