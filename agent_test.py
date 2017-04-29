@@ -20,6 +20,24 @@ class IsolationTest(unittest.TestCase):
         self.player2 = "Player2"
         self.game = isolation.Board(self.player1, self.player2)
 
+    def test_minimax(self):
+        self.player1 = game_agent.MinimaxPlayer(4)
+        self.player2 = game_agent.MinimaxPlayer(2)
+        self.game = isolation.Board(self.player1, self.player2)
+
+        self.game.apply_move((2, 3))
+        self.game.apply_move((0, 5))
+        print(self.game.to_string())
+
+        # print(self.player1.get_move(self.game, lambda: 100.0))
+
+        print('Player 1', self.player1)
+        print('Player 2', self.player2)
+        winner, history, outcome = self.game.play()
+        print("\nWinner: {}\nOutcome: {}".format(winner, outcome))
+        print(self.game.to_string())
+        print("Move history:\n{!s}".format(history))
+
 
 if __name__ == '__main__':
     unittest.main()

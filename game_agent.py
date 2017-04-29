@@ -34,8 +34,13 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_winner(player):
+        return 100.0
+
+    if game.is_loser(player):
+        return 0.0
+
+    return float(len(game.get_legal_moves(player)))
 
 
 def custom_score_2(game, player):
@@ -212,8 +217,65 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # If no legal moves, return (-1, -1)
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return -1, -1
+
+        # Starting from the max-node
+        best_score = float("-inf")
+        best_move = (-1, -1)
+        for move in legal_moves:
+            score = self.min_value(game.forecast_move(move), depth - 1)
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        return best_move
+
+    def min_value(self, game, depth):
+        """
+        Calculate the value of min-node
+        
+        :param game: Board
+        :param depth: current search depth
+        :return: score
+        """
+        # Terminal-test
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            return self.score(game, self)
+
+        v = float("inf")
+        for move in game.get_legal_moves():
+            score = self.max_value(game.forecast_move(move), depth - 1)
+            v = min(v, score)
+
+        return v
+
+    def max_value(self, game, depth):
+        """
+        Calculate the value of max-node
+
+        :param game: Board
+        :param depth: current search depth
+        :return: score
+        """
+        # Terminal-test
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            return self.score(game, self)
+
+        v = float("-inf")
+        for move in game.get_legal_moves():
+            score = self.min_value(game.forecast_move(move), depth - 1)
+            v = max(v, score)
+
+        return v
 
 
 class AlphaBetaPlayer(IsolationPlayer):
