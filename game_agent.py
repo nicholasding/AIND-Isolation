@@ -4,6 +4,9 @@ and include the results in your report.
 """
 import random
 
+CUTOFF = "C"
+FAILURE = (-1, -1)
+MAX_DEPTH = 50
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -317,7 +320,15 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        return self.alphabeta(game, self.search_depth)
+        best_move = FAILURE
+        try:
+            # https://github.com/aimacode/aima-pseudocode/blob/master/md/Iterative-Deepening-Search.md
+            for depth in range(1, MAX_DEPTH):
+                best_move = self.alphabeta(game, depth)
+        except SearchTimeout:
+            pass
+
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -393,7 +404,9 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         :param game: Board
         :param depth: current search depth
-        :return: score, alpha
+        :param alpha: alpha
+        :param beta: beta
+        :return: score
         """
         # Terminal-test
         if self.time_left() < self.TIMER_THRESHOLD:
@@ -418,7 +431,9 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         :param game: Board
         :param depth: current search depth
-        :return: score, beta
+        :param alpha: alpha
+        :param beta: beta
+        :return: score
         """
         # Terminal-test
         if self.time_left() < self.TIMER_THRESHOLD:

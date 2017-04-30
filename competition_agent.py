@@ -93,5 +93,49 @@ class CustomPlayer:
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
-        # OPTIONAL: Finish this function!
-        raise NotImplementedError
+        self.time_left = time_left
+
+        # Initialize the best move so that this function returns something
+        # in case the search fails due to timeout
+        best_move = (-1, -1)
+
+        try:
+            # The try/except block will automatically catch the exception
+            # raised when the timer is about to expire.
+            return self.ids(game)
+
+        except SearchTimeout:
+            pass  # Handle any actions required after timeout as needed
+
+        # Return the best move from the last completed search iteration
+        return best_move
+
+    def ids(self, game):
+        """
+        Iterative Deepening Search
+
+        :param game: game board
+        :return: best move
+        """
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return -1, -1
+
+        # Explore all nodes on the same level
+        for move in legal_moves:
+            game_copy = game.forecast_move(move)
+            if game_copy.is_winner(self):
+                return move
+
+        # Go to next level
+        for move in legal_moves:
+            game_copy = game.forecast_move(move)
+            result = self.ids(game_copy)
+            if result != (-1, -1):
+                return result
+
+        return -1, -1
+
