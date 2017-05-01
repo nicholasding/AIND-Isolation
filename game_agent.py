@@ -3,6 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
+import math
 
 CUTOFF = "C"
 FAILURE = (-1, -1)
@@ -37,13 +38,18 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_winner(player):
-        return 100.0
-
     if game.is_loser(player):
-        return 0.0
+        return float("-inf")
 
-    return float(len(game.get_legal_moves(player)))
+    if game.is_winner(player):
+        return float("inf")
+
+    my_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    remaining_moves = len(game.get_blank_spaces())
+
+    return float(my_moves - opponent_moves) / remaining_moves
 
 
 def custom_score_2(game, player):
@@ -68,9 +74,18 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    my_moves = len(game.get_legal_moves(player))
-    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(my_moves - opponent_moves)
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    y1, x1 = game.get_player_location(player)
+    y2, x2 = game.get_player_location(game.get_opponent(player))
+
+    dist = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+    return 1.0 / dist
 
 
 def custom_score_3(game, player):
@@ -95,8 +110,26 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    my_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    remaining_moves = len(game.get_blank_spaces())
+
+    y1, x1 = game.get_player_location(player)
+    y2, x2 = game.get_player_location(game.get_opponent(player))
+
+    dist = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+    a = float(my_moves - opponent_moves) / remaining_moves
+    b = 1.0 / dist
+
+    return (a + b) / 2.0
 
 
 class IsolationPlayer:
