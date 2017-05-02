@@ -5,9 +5,7 @@ and include the results in your report.
 import random
 import math
 
-CUTOFF = "C"
-FAILURE = (-1, -1)
-MAX_DEPTH = 50
+MAX_DEPTH = 30
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -261,7 +259,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         # Starting from the max-node
         best_score = float("-inf")
-        best_move = (-1, -1)
+        best_move = legal_moves[0]
         for move in legal_moves:
             score = self.min_value(game.forecast_move(move), depth - 1)
             if score > best_score:
@@ -353,7 +351,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        best_move = FAILURE
+        best_move = (-1, -1)
+
         try:
             # https://github.com/aimacode/aima-pseudocode/blob/master/md/Iterative-Deepening-Search.md
             for depth in range(1, MAX_DEPTH):
@@ -417,7 +416,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             return -1, -1
 
         # print("-" * 80)
-        best_move = (-1, -1)
+        best_move = legal_moves[0]
         best_score = float("-inf")
         for move in game.get_legal_moves():
             # print("Alpha", alpha, "Beta", beta, "Best", best_score)
