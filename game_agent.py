@@ -5,8 +5,6 @@ and include the results in your report.
 import random
 import math
 
-MAX_DEPTH = 30
-
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
@@ -45,9 +43,7 @@ def custom_score(game, player):
     my_moves = len(game.get_legal_moves(player))
     opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-    remaining_moves = len(game.get_blank_spaces())
-
-    return float(my_moves - opponent_moves) / remaining_moves
+    return float(5 * my_moves - opponent_moves)
 
 
 def custom_score_2(game, player):
@@ -355,8 +351,10 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         try:
             # https://github.com/aimacode/aima-pseudocode/blob/master/md/Iterative-Deepening-Search.md
-            for depth in range(1, MAX_DEPTH):
+            depth = 1
+            while True:
                 best_move = self.alphabeta(game, depth)
+                depth += 1
         except SearchTimeout:
             pass
 
